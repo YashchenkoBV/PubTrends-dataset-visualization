@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GEO Dataset Clustering</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>PubTrends: Data Insights for Enhanced Paper Relevance</h1>
+        <p class="subtitle">Dataset clustering application by Bogdan Iashchenko</p>
+    </header>
+
+    <div class="main-content">
+        <div class="sidebar">
+            <!-- Submit Analysis Panel -->
+            <div class="panel" id="upload-panel">
+                <h2>Submit Analysis</h2>
+                <form id="upload-form" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="job_name">Job Name (required):</label>
+                        <input type="text" name="job_name" id="job_name"
+                               placeholder="Enter a descriptive name for this job" required>
+                        <span class="field-hint">This name will be used as the job file name</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="file">Upload PMID list:</label>
+                        <div class="file-input-container">
+                            <input type="file" name="file" id="file" accept=".txt">
+                            <span class="file-name">No file selected</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="primary-btn">Start Analysis</button>
+                        <button type="button" id="clear-cache-btn" class="secondary-btn">Clear Cache</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Process Timeline Panel -->
+            <div class="panel" id="timeline-panel">
+                <h2>Analysis Progress</h2>
+                <div class="timeline">
+                    <div class="timeline-item" data-stage="validation">
+                        <div class="timeline-icon"></div>
+                        <div class="timeline-content">
+                            <h3>Validation</h3>
+                            <p>Validating PMIDs</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-stage="fetching_data">
+                        <div class="timeline-icon"></div>
+                        <div class="timeline-content">
+                            <h3>Data Retrieval</h3>
+                            <p>Fetching GEO datasets</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-stage="analyzing_text">
+                        <div class="timeline-icon"></div>
+                        <div class="timeline-content">
+                            <h3>Text Analysis</h3>
+                            <p>Analyzing dataset content</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-stage="clustering">
+                        <div class="timeline-icon"></div>
+                        <div class="timeline-content">
+                            <h3>Clustering</h3>
+                            <p>Grouping similar datasets</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-stage="completed">
+                        <div class="timeline-icon"></div>
+                        <div class="timeline-content">
+                            <h3>Complete</h3>
+                            <p>Analysis finished</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Log Panel -->
+            <div class="panel" id="log-panel">
+                <h2>Processing Logs</h2>
+                <div class="log-controls">
+                    <button id="toggle-logs-btn" class="toggle-btn">Show/Hide Logs</button>
+                </div>
+                <div class="logs" id="logs"></div>
+            </div>
+        </div>
+
+        <div class="main-panel">
+            <!-- Workflow Visualization Panel -->
+            <div class="panel workflow-panel">
+                <div class="workflow-header">
+                    <h2>Workflow Status</h2>
+                    <div class="job-info" id="job-info">
+                        <span id="current-job-id">No active job</span>
+                        <span id="job-time"></span>
+                    </div>
+                </div>
+
+                <div class="workflow-visualization">
+                    <div class="workflow-stats">
+                        <div class="stat-card" id="pmid-count">
+                            <h3>PMIDs</h3>
+                            <div class="stat-value">0</div>
+                        </div>
+                        <div class="stat-card" id="dataset-count">
+                            <h3>Datasets</h3>
+                            <div class="stat-value">0</div>
+                        </div>
+                        <div class="stat-card" id="cluster-count">
+                            <h3>Clusters</h3>
+                            <div class="stat-value">0</div>
+                        </div>
+                    </div>
+                    <div class="workflow-stage" id="workflow-stage">
+                        <div class="stage-visualization">
+                            <!-- Dynamic workflow visualization will be inserted here -->
+                        </div>
+                        <div class="stage-description">
+                            <!-- Stage-specific description will be shown here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cluster Visualization Panel -->
+            <div class="panel cluster-panel">
+                <div class="cluster-header">
+                    <h2>Cluster Visualization</h2>
+                    <div class="cluster-controls">
+                        <div class="job-upload-container">
+                            <label for="job-file">Select Job File:</label>
+                            <div class="file-input-container">
+                                <input type="file" name="job-file" id="job-file" accept=".json">
+                                <span class="job-file-name">No file selected</span>
+                            </div>
+                            <span class="field-hint">Select a JSON file from either the jobs/ directory or data/processed/ directory</span>
+                            <button id="load-job-btn" class="primary-btn">Load Visualization</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="viz-status" class="status-message"></div>
+                <div id="plotly-div" class="visualization-container"></div>
+                <div id="cluster-summary" class="summary-box"></div>
+
+                <div id="dataset-details" class="details-panel">
+                    <h3>Dataset Details</h3>
+                    <div class="details-instructions">Click on any point in the visualization to view details</div>
+                    <div id="dataset-content" class="details-content">
+                        <p>Select a dataset in the visualization to view details.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>

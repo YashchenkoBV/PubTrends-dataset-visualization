@@ -1,0 +1,25 @@
+# Web framework and extensions
+Flask==2.3.3
+flask-socketio==5.3.6
+Werkzeug==2.3.7
+python-multipart==0.0.6
+Jinja2==3.1.2
+
+# Data processing and analysis
+numpy==1.26.0
+pandas==2.1.1
+scikit-learn==1.3.2
+scipy==1.11.3
+
+# Visualization
+plotly==5.18.0
+matplotlib==3.8.0
+
+# Web requests and parsing
+requests==2.31.0
+beautifulsoup4==4.12.2
+lxml==4.9.3
+
+# Build tools
+setuptools>=68.0.0
+wheel>=0.41.0
