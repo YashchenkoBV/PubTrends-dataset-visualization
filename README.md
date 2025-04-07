@@ -21,11 +21,16 @@ This is a Flask-based web application that does clustering of GEO datasets, asso
    python app.py
    ```
 
-4. Submit a list of PMIDs (.txt)
+4. Access the application via the provided link
+    ```bash
+   http://127.0.0.1:5000
+   ```
 
-5. Wait for information retrieval
+5. Submit a list of PMIDs (.txt)
 
-6. See the visualization
+6. Wait for information retrieval
+
+7. See the visualization
 
 ## Requirements
 Flask
