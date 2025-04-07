@@ -44,6 +44,6 @@ All the required packages (with the appropriate versions) are specified in the `
 
 ## Features
 - **Interactive visualization** - see the plot for particular clusters or click on dots to view info about the corresponding GEO dataset
-- **Several jobs** - submit different lists of PMIDs and choose file names to store the data about the datasets and visualization
+- **Several projects** - submit different lists of PMIDs and choose file names to store the data about the datasets and visualizations in
 - **Dynamic caching** - retrieved data is saved dynamically
 - **Progress bar** - see the status of current job on the progress bar or in the logs window
